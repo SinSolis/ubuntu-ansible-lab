@@ -1,0 +1,53 @@
+---
+###############################################################################
+#
+# tasks/main.yml
+#
+# Main tasks file for tanium-client
+#
+###############################################################################
+
+
+# Installs the Debian/Ubuntu parts
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == 'Debian'
+
+###############################################################################
+#
+# Production install 
+#
+# Commenting out Prod install for now as we need to verify how CF wants to handle
+# driving down the environment settings
+#
+###############################################################################
+
+- name: Copy the Prod tanium-init.dat file up
+  copy:
+     src: "{{ tanium_prod_client_settings.tanium_init_file }}"
+     dest: "/opt/Tanium/TaniumClient/tanium-init.dat"
+
+- name: Set Prod tanium client setting - ServerNameList
+  command: "{{ tanium_client_home }} config set ServerNameList {{ tanium_prod_client_settings.ServerNameList }}"
+  become: yes
+
+###############################################################################
+#
+# Test install 
+#
+#
+#
+###############################################################################
+ 
+#- name: Copy the Test tanium-init.dat file up
+#  copy:
+#     src: "{{ tanium_test_client_settings.tanium_init_file }}"
+#     dest: "/opt/Tanium/TaniumClient/tanium-init.dat"
+
+#- name: Set Test tanium client setting - ServerNameList
+#  command: "{{ tanium_client_home }} config set ServerNameList {{ tanium_test_client_settings.ServerNameList }}"
+#  become: yes
+
+- name: Enable the taniumclient service
+  service:
+    enabled: yes
+    name: taniumclient

@@ -1,0 +1,7 @@
+# Ansible hosts file
+[nodes]
+node01
+node02
+
+[controller]
+control ansible_connection=local
