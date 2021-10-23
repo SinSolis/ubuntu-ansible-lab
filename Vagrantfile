@@ -1,30 +1,31 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# README
-#
-# Getting Started:
-# 1. vagrant plugin install vagrant-hostmanager
-# 2. vagrant up
-# 3. vagrant ssh
-#
-# This should put you at the control host
-#  with access, by name, to other vms
-Vagrant.configure(2) do |config|
-  config.hostmanager.enabled = true
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
 
-  config.vm.box = "ubuntu/focal64"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  os = "ubuntu/focal64"
+  net_ip = "192.168.50"
 
-  config.vm.define "control", primary: true do |h|
-    h.vm.hostname =  "control"
-    h.vm.network "private_network", ip: "192.168.135.10"
-    h.vm.provision :shell, inline: 'echo demo > /home/vagrant/.vault_pass.txt'
-    h.vm.provision "shell" do |provision|
+  config.vm.define :controller, primary: true do |controller_config|
+    controller_config.vm.provider "virtualbox" do |vb|
+        vb.memory = "2048"
+        vb.cpus = 2
+        vb.name = "controller"
+    end
+
+    controller_config.vm.box = "#{os}"
+    controller_config.vm.host_name = 'controller.local'
+    controller_config.vm.network "private_network", ip: "#{net_ip}.10"
+    controller_config.landrush.enabled = true
+    controller_config.vm.provision :shell, inline: 'echo demo > /home/vagrant/.vault_pass.txt'
+    controller_config.vm.provision "shell" do |provision|
       provision.path = "provision_ansible.sh"
-    end 
-    h.vm.provision :shell, :inline => <<'EOF'
+    end
+    controller_config.vm.provision :shell, :inline => <<'EOF'
 
-	if [ ! -f "/home/vagrant/.ssh/id_rsa" ]; then
+        if [ ! -f "/home/vagrant/.ssh/id_rsa" ]; then
   ssh-keygen -t rsa -N "" -f /home/vagrant/.ssh/id_rsa
 fi
 cp /home/vagrant/.ssh/id_rsa.pub /vagrant/control.pub
@@ -34,21 +35,26 @@ Host *
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
 SSHEOF
-
 chown -R vagrant:vagrant /home/vagrant/.ssh/
 EOF
   end
 
-  config.vm.define "node01" do |h|
-    h.vm.hostname = "node01"
-    h.vm.network "private_network", ip: "192.168.135.111"
-    h.vm.provision :shell, inline: 'cat /vagrant/control.pub >> /home/vagrant/.ssh/authorized_keys'
-  end
+  [
+    ["node01",    "#{net_ip}.11",    "1024",    os ],
+    ["node02",    "#{net_ip}.12",    "1024",    os ],
+  ].each do |vmname,ip,mem,os|
+    config.vm.define "#{vmname}" do |node_config|
+      node_config.vm.provider "virtualbox" do |vb|
+          vb.memory = "#{mem}"
+          vb.cpus = 1
+          vb.name = "#{vmname}"
+      end
 
-  config.vm.define "node02" do |h|
-    h.vm.hostname = "node02"
-    h.vm.network "private_network", ip: "192.168.135.121"
-    h.vm.provision :shell, inline: 'cat /vagrant/control.pub >> /home/vagrant/.ssh/authorized_keys'
+      node_config.vm.box = "#{os}"
+      node_config.vm.hostname = "#{vmname}"
+      node_config.vm.network "private_network", ip: "#{ip}"
+      node_config.landrush.enabled = true
+      node_config.vm.provision :shell, inline: 'cat /vagrant/control.pub >> /home/vagrant/.ssh/authorized_keys'
+    end
   end
 end
-
