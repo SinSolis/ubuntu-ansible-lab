@@ -19,7 +19,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     controller_config.vm.host_name = 'controller.local'
     controller_config.vm.network "private_network", ip: "#{net_ip}.10"
     controller_config.landrush.enabled = true
-    controller_config.vm.provision :shell, inline: 'echo demo > /home/vagrant/.vault_pass.txt'
     controller_config.vm.provision "shell" do |provision|
       provision.path = "provision_ansible.sh"
     end
