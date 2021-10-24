@@ -8,21 +8,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   os = "ubuntu/focal64"
   net_ip = "192.168.50"
 
-  config.vm.define :controller, primary: true do |controller_config|
-    controller_config.vm.provider "virtualbox" do |vb|
+  config.vm.define :ubucontroller, primary: true do |ubucontroller_config|
+    ubucontroller_config.vm.provider "virtualbox" do |vb|
         vb.memory = "2048"
         vb.cpus = 2
-        vb.name = "controller"
+        vb.name = "ubucontroller"
     end
 
-    controller_config.vm.box = "#{os}"
-    controller_config.vm.host_name = 'controller.local'
-    controller_config.vm.network "private_network", ip: "#{net_ip}.10"
-    controller_config.landrush.enabled = true
-    controller_config.vm.provision "shell" do |provision|
+    ubucontroller_config.vm.box = "#{os}"
+    ubucontroller_config.vm.host_name = 'ubucontroller.local'
+    ubucontroller_config.vm.network "private_network", ip: "#{net_ip}.10"
+    ubucontroller_config.landrush.enabled = true
+    ubucontroller_config.vm.provision "shell" do |provision|
       provision.path = "provision_ansible.sh"
     end
-    controller_config.vm.provision :shell, :inline => <<'EOF'
+    ubucontroller_config.vm.provision :shell, :inline => <<'EOF'
 
         if [ ! -f "/home/vagrant/.ssh/id_rsa" ]; then
   ssh-keygen -t rsa -N "" -f /home/vagrant/.ssh/id_rsa
@@ -39,8 +39,8 @@ EOF
   end
 
   [
-    ["node01",    "#{net_ip}.11",    "1024",    os ],
-    ["node02",    "#{net_ip}.12",    "1024",    os ],
+    ["ubunode01",    "#{net_ip}.11",    "1024",    os ],
+    ["ubunode02",    "#{net_ip}.12",    "1024",    os ],
   ].each do |vmname,ip,mem,os|
     config.vm.define "#{vmname}" do |node_config|
       node_config.vm.provider "virtualbox" do |vb|
