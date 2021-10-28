@@ -1,3 +1,4 @@
 # Local .vagrant directories
 .vagrant
 *retry
+control.pub
