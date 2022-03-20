@@ -27,6 +27,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ssh-keygen -t rsa -N "" -f /home/vagrant/.ssh/id_rsa
 fi
 cp /home/vagrant/.ssh/id_rsa.pub /vagrant/control.pub
+cp /vagrant/hosts /home/vagrant
+cp /vagrant/ansible.cfg /home/vagrant
 
 cat << 'SSHEOF' > /home/vagrant/.ssh/config
 Host *
