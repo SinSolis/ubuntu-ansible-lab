@@ -1,9 +1,6 @@
-[nodes]
-centnode01
-centnode02
-ubunode01
-ubunode02
-
 [controllers]
-centcontroller ansible_connection=local
-ubucontroller
+controller ansible_connection=local
+
+[nodes]
+node01
+node02
