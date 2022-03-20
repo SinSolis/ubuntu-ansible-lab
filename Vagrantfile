@@ -8,21 +8,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   os = "ubuntu/focal64"
   net_ip = "192.168.50"
 
-  config.vm.define :ubucontroller, primary: true do |ubucontroller_config|
-    ubucontroller_config.vm.provider "virtualbox" do |vb|
+  config.vm.define :controller, primary: true do |controller_config|
+    controller_config.vm.provider "virtualbox" do |vb|
         vb.memory = "2048"
         vb.cpus = 2
-        vb.name = "ubucontroller"
+        vb.name = "controller"
     end
 
-    ubucontroller_config.vm.box = "#{os}"
-    ubucontroller_config.vm.host_name = 'ubucontroller.local'
-    ubucontroller_config.vm.network "private_network", ip: "#{net_ip}.20"
-    ubucontroller_config.landrush.enabled = true
-    ubucontroller_config.vm.provision "shell" do |provision|
+    controller_config.vm.box = "#{os}"
+    controller_config.vm.host_name = 'controller.local'
+    controller_config.vm.network "private_network", ip: "#{net_ip}.20"
+    controller_config.vm.provision "shell" do |provision|
       provision.path = "provision_ansible.sh"
     end
-    ubucontroller_config.vm.provision :shell, :inline => <<'EOF'
+    controller_config.vm.provision :shell, :inline => <<'EOF'
 
         if [ ! -f "/home/vagrant/.ssh/id_rsa" ]; then
   ssh-keygen -t rsa -N "" -f /home/vagrant/.ssh/id_rsa
@@ -39,8 +38,8 @@ EOF
   end
 
   [
-    ["ubunode01",    "#{net_ip}.21",    "1024",    os ],
-    ["ubunode02",    "#{net_ip}.22",    "1024",    os ],
+    ["node01",    "#{net_ip}.21",    "1024",    os ],
+    ["node02",    "#{net_ip}.22",    "1024",    os ],
   ].each do |vmname,ip,mem,os|
     config.vm.define "#{vmname}" do |node_config|
       node_config.vm.provider "virtualbox" do |vb|
@@ -52,8 +51,10 @@ EOF
       node_config.vm.box = "#{os}"
       node_config.vm.hostname = "#{vmname}"
       node_config.vm.network "private_network", ip: "#{ip}"
-      node_config.landrush.enabled = true
       node_config.vm.provision :shell, inline: 'cat /vagrant/control.pub >> /home/vagrant/.ssh/authorized_keys'
+      node_config.vm.provision "shell" do |provision|
+        provision.path = "provision_ansible.sh"
+      end
     end
   end
 end
