@@ -16,7 +16,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     controller_config.vm.box = "#{os}"
-    controller_config.vm.box_check_update = false
     controller_config.vm.host_name = 'controller.local'
     controller_config.vm.network "private_network", ip: "#{net_ip}.20"
     controller_config.vm.synced_folder "./ansible", "/home/vagrant/ansible", owner: "vagrant", group: "vagrant"
