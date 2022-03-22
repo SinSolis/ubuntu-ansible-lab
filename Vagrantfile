@@ -16,8 +16,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     controller_config.vm.box = "#{os}"
+    controller_config.vm.box_check_update = false
     controller_config.vm.host_name = 'controller.local'
     controller_config.vm.network "private_network", ip: "#{net_ip}.20"
+    controller_config.vm.synced_folder "./ansible", "/home/vagrant/ansible", owner: "vagrant", group: "vagrant"
     controller_config.vm.provision "shell" do |provision|
       provision.path = "provision_ansible.sh"
     end
@@ -27,8 +29,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ssh-keygen -t rsa -N "" -f /home/vagrant/.ssh/id_rsa
 fi
 cp /home/vagrant/.ssh/id_rsa.pub /vagrant/control.pub
-cp /vagrant/hosts /home/vagrant
-cp /vagrant/ansible.cfg /home/vagrant
+#cp /vagrant/hosts /home/vagrant
+#cp /vagrant/ansible.cfg /home/vagrant
 
 cat << 'SSHEOF' > /home/vagrant/.ssh/config
 Host *
