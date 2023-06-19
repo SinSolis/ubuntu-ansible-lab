@@ -18,6 +18,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     controller_config.vm.box = "#{os}"
     controller_config.vm.host_name = 'controller.local'
     controller_config.vm.network "private_network", ip: "#{net_ip}.20"
+    controller_config.vm.network "public_network", bridge: "ASUS PCE-AC68 802.11ac Network Adapter #2"
     controller_config.vm.synced_folder "./ansible", "/home/vagrant/ansible", owner: "vagrant", group: "vagrant",
       mount_options: ["dmode=775,fmode=600"]
     controller_config.vm.provision "shell" do |provision|
@@ -30,11 +31,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   [
     ["node01",    "#{net_ip}.21",    "1024",    os ],
     ["node02",    "#{net_ip}.22",    "1024",    os ],
+    ["node03",    "#{net_ip}.23",    "1024",    os ],
+    ["node04",    "#{net_ip}.24",    "1024",    os ],
+    ["node05",    "#{net_ip}.25",    "1024",    os ]
   ].each do |vmname,ip,mem,os|
     config.vm.define "#{vmname}" do |node_config|
       node_config.vm.provider "virtualbox" do |vb|
           vb.memory = "#{mem}"
-          vb.cpus = 1
+          vb.cpus = 2
           vb.name = "#{vmname}"
       end
 
