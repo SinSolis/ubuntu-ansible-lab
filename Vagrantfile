@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   os = "ubuntu/focal64"
-  net_ip = "192.168.50"
+  net_ip = "192.168.56"
 
   config.vm.define :controller, primary: true do |controller_config|
     controller_config.vm.provider "virtualbox" do |vb|
@@ -18,7 +18,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     controller_config.vm.box = "#{os}"
     controller_config.vm.host_name = 'controller.local'
     controller_config.vm.network "private_network", ip: "#{net_ip}.20"
-    controller_config.vm.network "public_network", bridge: "ASUS PCE-AC68 802.11ac Network Adapter #2"
+    controller_config.vm.network "public_network", bridge: "wlp0s20f3"
     controller_config.vm.synced_folder "./ansible", "/home/vagrant/ansible", owner: "vagrant", group: "vagrant",
       mount_options: ["dmode=775,fmode=600"]
     controller_config.vm.provision "shell" do |provision|
